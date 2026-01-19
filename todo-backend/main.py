@@ -3,7 +3,7 @@ from typing import List
 import models
 from fastapi import Body, FastAPI
 
-from .core.database import Engine
+from .core.database import engine
 from .routers.taskrouters import router as task_router
 from .routers.userrouters import router as user_router
 
@@ -17,4 +17,4 @@ async def root():
     return {"message": "Todo API is running 🚀"}
 
 
-models.Base.metadata.create_all(bind=Engine)
+models.Base.metadata.create_all(bind=engine)

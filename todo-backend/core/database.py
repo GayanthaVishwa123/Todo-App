@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_URL = "sqlite:///./todo.db"
 
-create = create_engine(SQLALCHEMY_URL, connect_args={"check_same_thred": False})
+engine = create_engine(SQLALCHEMY_URL, connect_args={"check_same_thred": False})
 
-sessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=Engine)
+sessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 base = declarative_base()
