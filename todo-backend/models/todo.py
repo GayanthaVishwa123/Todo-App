@@ -1,21 +1,26 @@
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 
 
-class Taskclass(BaseModel):
+class User(BaseModel):
+    __tablename__ = "users"
 
-    id: Optional[int] = None
-    title: str
-    task_introduction: str
-    complete_status: bool
-    start_datetime: str
-    complete_datetime: str
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+    is_active = Column(Boolean, default=True)
 
 
-class CreateUser(BaseModel):
-    id: Optional[int] = None
-    username: str = Field(..., min_length=4)
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-    is_active: Optional[bool] = False
+class Task(BaseModel):
+    __tablename__ = "todos"
+
+    # Defining the columns
+    id = Column(Integer, primary_key=True, index=True)
+    task_introduction = Column(String, index=True)
+    complete_status = Column(Boolean, default=False)
+    start_datetime = Column(String)
+    complete_datetime = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"))
