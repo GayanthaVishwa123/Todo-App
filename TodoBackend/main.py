@@ -1,9 +1,10 @@
 from typing import List
 
-import models
-from fastapi import Body, FastAPI
+from fastapi import FastAPI
 
-from .core.database import engine
+from TodoBackend.models import todo
+
+from .core.database import Base, engine
 from .routers.taskrouters import router as task_router
 from .routers.userrouters import router as user_router
 
@@ -14,7 +15,7 @@ app.include_router(user_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Todo API is running 🚀"}
+    return {"message": "Todo API is running"}
 
 
-models.Base.metadata.create_all(bind=engine)
+todo.Base.metadata.create_all(bind=engine)
