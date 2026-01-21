@@ -1,32 +1,19 @@
-from fastapi import APIRouter
+from typing import Annotated
 
-# from ..models.todo import Task
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from ..core.database import get_db
+from ..schemas.task import CreaetTask
+from ..schemas.user import CreateRequestUser
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-
-# tasks = [
-#     {
-#         "id": 1,
-#         "title": "Complete Assignment",
-#         "task_introduction": "Complete the Assignment",
-#         "complete_status": False,
-#         "start_datetime": "2026-01-17 08:09:00",
-#         "complete_datetime": "2026-02-23 02:23:33",
-#     },
-#     {
-#         "id": 2,
-#         "title": "Complete Practical",
-#         "task_introduction": "Complete the Practical",
-#         "complete_status": False,
-#         "start_datetime": "2026-01-13 12:23:33",
-#         "complete_datetime": "2026-01-23 02:23:33",
-#     },
-# ]
+db_dependency: Annotated[Session, Depends(get_db)]
 
 
 # @router.get("/")
-# async def lists():
+# async def list():
 #     return tasks
 
 

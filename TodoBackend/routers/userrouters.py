@@ -1,28 +1,23 @@
-from fastapi import APIRouter
+from typing import Annotated
 
-# from ..models.todo import User
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
+
+from ..core.database import get_db
+from ..models.todo import User
+from ..schemas.user import UserResponse
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
-# Createuser = [
-#     {
-#         "id": 1,
-#         "username": "student01",
-#         "email": "student01@gmail.com",
-#         "password": "studentpass123",
-#     },
-#     {
-#         "id": 2,
-#         "username": "student02",
-#         "email": "student02@gmail.com",
-#         "password": "studentpass1234",
-#     },
-# ]
+# Reusable DB dependency
+db_dependency: Annotated[Session, Depends(get_db)]
 
 
-# @router.get("/")
-# async def get_user():
-#     return {"message": "Successfully see users", "users": Createuser}
+# GET all users
+@router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
+def list_users(db: db_dependency):
+    users = db.query(User).all()
+    return users
 
 
 # def check_mail(email: str):
