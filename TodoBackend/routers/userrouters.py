@@ -31,7 +31,7 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
             lastname=user.lastname,
             username=user.username,
             email=user.email,
-            hashed_password=user.password,
+            has_password=user.has_password,
         )
 
         db.add(new_user)

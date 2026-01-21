@@ -6,7 +6,7 @@ class CreateRequestUser(BaseModel):
     lastname: str
     username: str
     email: str
-    password: str
+    has_password: str
 
 
 class UserResponse(BaseModel):
