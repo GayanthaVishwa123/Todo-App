@@ -1,15 +1,15 @@
-from typing import Annotated
+# from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+# from fastapi import APIRouter, Depends
+# from sqlalchemy.orm import Session
 
-from ..core.database import get_db
-from ..schemas.task import CreaetTask
-from ..schemas.user import CreateRequestUser
+# from ..core.database import get_db
+# from ..schemas.task import CreaetTask
+# from ..schemas.user import CreateRequestUser
 
-router = APIRouter(prefix="/tasks", tags=["Tasks"])
+# router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-db_dependency: Annotated[Session, Depends(get_db)]
+# db_dependency: Annotated[Session, Depends(get_db)]
 
 
 # @router.get("/")

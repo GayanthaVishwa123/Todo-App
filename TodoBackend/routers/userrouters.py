@@ -1,23 +1,48 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..models.todo import User
-from ..schemas.user import UserResponse
+from ..schemas.user import CreateRequestUser, UserResponse
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
 # Reusable DB dependency
-db_dependency: Annotated[Session, Depends(get_db)]
+db_dependency = Annotated[Session, Depends(get_db)]
 
 
 # GET all users
 @router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
-def list_users(db: db_dependency):
+async def list_users(db: db_dependency):
     users = db.query(User).all()
     return users
+
+
+# Post users
+@router.post(
+    "/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
+async def createUser(db: db_dependency, user: CreateRequestUser):
+    try:
+        new_user = User(
+            firstname=user.firstname,
+            lastname=user.lastname,
+            username=user.username,
+            email=user.email,
+            hashed_password=user.password,
+        )
+
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return new_user
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"User creation failed: {str(e)}")
 
 
 # def check_mail(email: str):
