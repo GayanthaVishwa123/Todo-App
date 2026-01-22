@@ -78,11 +78,24 @@ async def user_update(db: db_dependency, user_id: int, user: CreateRequestUser):
         raise HTTPException(status_code=400, detail=f"Error updating user: {str(e)}")
 
 
-# @router.delete("/delete/{user_id}")
-# async def delete_user(user_id: int):
-#     for i, usr in enumerate(Createuser):
-#         if usr["id"] == user_id:
-#             Createuser.pop(i)
-#             return {"message": "Successfully deleted user!"}
+from fastapi import HTTPException
 
-#     return {"message": "Failed! User not found"}
+
+# user Delete
+@router.delete("/userdele/{user_id}", status_code=status.HTTP_200_OK)
+async def delete_user(db: db_dependency, user_id: int):
+    try:
+
+        user_to_delete = db.query(User).filter(User.id == user_id).first()
+
+        if not user_to_delete:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        db.delete(user_to_delete)
+        db.commit()
+
+        return {"message": "User successfully deleted"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error deleting user: {str(e)}")
