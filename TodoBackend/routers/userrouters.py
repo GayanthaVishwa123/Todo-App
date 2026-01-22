@@ -9,7 +9,7 @@ from ..schemas.user import CreateRequestUser, UserResponse
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
-# Reusable DB dependency
+
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
