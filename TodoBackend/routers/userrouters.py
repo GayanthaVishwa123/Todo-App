@@ -45,38 +45,37 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
         raise HTTPException(status_code=400, detail=f"User creation failed: {str(e)}")
 
 
-# def check_mail(email: str):
-#     for user in Createuser:
-#         if user["email"] == email:
-#             return False
-#     return True
+from fastapi import HTTPException
 
 
-# @router.post("/createuser")
-# async def create_user(new_user: User):
+# user Update
+@router.put(
+    "/userUpdate/{user_id}",
+    response_model=UserResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def user_update(db: db_dependency, user_id: int, user: CreateRequestUser):
+    try:
 
-#     if not check_mail(new_user.email):
-#         return {"error": "This email is already used"}
+        update_user = db.query(User).filter(User.id == user_id).first()
 
-#     usr = new_user.dict()
-#     Createuser.append(usr)
+        if not update_user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-#     return {"message": "Successfully created user", "user": usr}
+        update_user.firstname = user.firstname
+        update_user.lastname = user.lastname
+        update_user.username = user.username
+        update_user.email = user.email
+        update_user.hashed_password = user.password
 
+        db.commit()
+        db.refresh(update_user)
 
-# @router.put("/update-user/{user_id}")
-# async def updateUser(user_id: int, updtaeDetails: User):
-#     for usr in Createuser:
-#         if usr["id"] == user_id:
+        return update_user
 
-#             usr["id"] == updtaeDetails.id
-#             usr["username"] = updtaeDetails.username
-#             usr["email"] = updtaeDetails.email
-#             usr["password"] = updtaeDetails.password
-#             usr["is_active"] = updtaeDetails.is_active
-#             return {"message": "Successfully update!!", "UpdateUser": usr}
-
-#     return {"message": "Faild Unsuccessfully update!! "}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error updating user: {str(e)}")
 
 
 # @router.delete("/delete/{user_id}")
