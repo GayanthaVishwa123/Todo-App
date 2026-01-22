@@ -32,11 +32,9 @@ def userAuthenticate(user_name: str, password: str, db: db_dependency):
     userdetails = db.query(User).filter(User.username == user_name).first()
     if not userdetails:
         return {"error": "User not found"}
-    if not passwordVeryfied(
-        password, userdetails.has_password
-    ):  # Assuming passwordVeryfied is implemented
+    if not passwordVeryfied(password, userdetails.has_password):
         return {"message": "Invalid password"}
-    return userdetails  # Return user details for token creation
+    return userdetails
 
 
 # Create JWT token function
@@ -67,7 +65,7 @@ async def login_access_token(
 ):
     # Authenticate the user
     user = userAuthenticate(form.username, form.password, db)
-    if not isinstance(user, User):  # Check if user authentication was successful
+    if not isinstance(user, User):
         raise HTTPException(status_code=400, detail=user["message"])
 
     # Create access token
