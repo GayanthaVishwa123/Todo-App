@@ -1,6 +1,9 @@
+from datetime import datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db
@@ -11,6 +14,17 @@ router = APIRouter(prefix="/user", tags=["Users"])
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
+
+# OAuth2PasswordBearer instance to extract token from Authorization header
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+from TodoBackend.auth.userAuth import (
+    AccessToken,
+    create_token,
+    decode_token,
+    userAuthenticate,
+)
 
 
 # GET all users
@@ -99,3 +113,28 @@ async def delete_user(db: db_dependency, user_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error deleting user: {str(e)}")
+
+
+# Token endpoint for login (OAuth2 Password Flow)
+@router.post("/token", response_model=AccessToken)
+async def login_access_token(
+    form: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
+):
+    # Authenticate the user
+    user = userAuthenticate(form.username, form.password, db)
+    if not isinstance(user, User):
+        raise HTTPException(status_code=400, detail=user["message"])
+
+    # Create access token
+    token = create_token(user.username, user.id, timedelta(minutes=20))
+    return AccessToken(access_token=token, token_type="bearer")
+
+
+# Protected route using Bearer token
+@router.get("/protected")
+async def protected_route(token: str = Depends(oauth2_scheme)):
+    # Decode the token to get the user details
+    user_info = decode_token(token)
+    return {
+        "message": f"Hello {user_info['username']}, you are authorized to view this resource."
+    }

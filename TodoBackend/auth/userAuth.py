@@ -18,9 +18,6 @@ db_dependency = Annotated[Session, Depends(get_db)]
 SECRET_KEY = "df08a3baaa2ee64e49006c4a33c848fa6cc2176e960a1ad21a1e1cac66c53499"
 ALGORITHM = "HS256"
 
-# OAuth2PasswordBearer instance to extract token from Authorization header
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 
 class AccessToken(BaseModel):
     access_token: str
@@ -56,28 +53,3 @@ def decode_token(token: str):
         return {"username": username, "user_id": user_id}
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
-
-
-# Token endpoint for login (OAuth2 Password Flow)
-@app.post("/token", response_model=AccessToken)
-async def login_access_token(
-    form: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
-):
-    # Authenticate the user
-    user = userAuthenticate(form.username, form.password, db)
-    if not isinstance(user, User):
-        raise HTTPException(status_code=400, detail=user["message"])
-
-    # Create access token
-    token = create_token(user.username, user.id, timedelta(minutes=20))
-    return AccessToken(access_token=token, token_type="bearer")
-
-
-# Protected route using Bearer token
-@app.get("/protected")
-async def protected_route(token: str = Depends(oauth2_scheme)):
-    # Decode the token to get the user details
-    user_info = decode_token(token)
-    return {
-        "message": f"Hello {user_info['username']}, you are authorized to view this resource."
-    }
