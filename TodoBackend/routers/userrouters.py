@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..models.todo import User
-from ..schemas.user import CreateRequestUser, UserResponse
+from ..schemas.user import CreateRequestUser, UserResponse, updateUser
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
@@ -54,7 +54,7 @@ from fastapi import HTTPException
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def user_update(db: db_dependency, user_id: int, user: CreateRequestUser):
+async def user_update(db: db_dependency, user_id: int, user: updateUser):
     try:
 
         update_user = db.query(User).filter(User.id == user_id).first()
@@ -65,8 +65,6 @@ async def user_update(db: db_dependency, user_id: int, user: CreateRequestUser):
         update_user.firstname = user.firstname
         update_user.lastname = user.lastname
         update_user.username = user.username
-        update_user.email = user.email
-        update_user.hashed_password = user.password
 
         db.commit()
         db.refresh(update_user)
