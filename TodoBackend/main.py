@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import FastAPI
 
 from TodoBackend.models import todo
