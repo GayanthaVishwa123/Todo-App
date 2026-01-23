@@ -65,8 +65,6 @@ async def user_update(db: db_dependency, user_id: int, user: CreateRequestUser):
         update_user.firstname = user.firstname
         update_user.lastname = user.lastname
         update_user.username = user.username
-        update_user.email = user.email
-        update_user.hashed_password = user.password
 
         db.commit()
         db.refresh(update_user)

@@ -18,3 +18,9 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class updateUser(BaseModel):
+    firstname: str
+    lastname: str
+    username: str
