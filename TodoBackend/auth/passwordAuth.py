@@ -11,3 +11,4 @@ def hashpassword(passwprd: str):
 # password veryfied
 def passwordVeryfied(plain_password: str, hashed_password: str):
     return password_context.verify(plain_password, hashed_password)
+print("Password")
