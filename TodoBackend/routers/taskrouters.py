@@ -13,9 +13,20 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 @router.get("/", response_model=List[Task], status_code=status.HTTP_200_OK)
-async def list_tasks(db: db_dependency):
-    tasks = db.query(Task).all()
-    return tasks
+async def list_tasks(db: Session = Depends(get_db)):
+    try:
+        tasks = db.query(Task).all()  # Query all tasks from the database
+        if not tasks:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found"
+            )
+        return tasks
+    except Exception as e:
+        # Catch any general exception and raise HTTP 500 (Internal Server Error)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}",
+        )
 
 
 # def idcreate(new_task_id: int = None):
