@@ -17,7 +17,7 @@ class UserResponse(BaseModel):
     email: str
 
     class Config:
-        orm_mode = True  # This is required for SQLAlchemy ORM objects
+        from_attributes = True
 
 
 class UpdateUser(BaseModel):
