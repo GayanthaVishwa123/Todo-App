@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..models.todo import Task
-from ..schemas.task import CreatTask
+from ..schemas.task import CreatTask, TaskResponse
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -38,7 +38,9 @@ async def list_tasks(db: Session = Depends(get_db)):
 #     return new_task_id
 
 
-@router.post("/create", response_model=CreatTask, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/create", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_tasks(db: Session, tasks: CreatTask):
     try:
         new_task = Task(**tasks.dict())
