@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..auth.userAuth import AccessToken, userAuthenticate
 from ..core.database import get_db
 from ..models.todo import User
-from ..schemas.user import CreateRequestUser, UserResponse, updateUser
+from ..schemas.user import CreateRequestUser, UpdateUser, UserResponse
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
@@ -66,7 +66,7 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def user_update(db: db_dependency, user_id: int, user: updateUser):
+async def user_update(db: db_dependency, user_id: int, user: UpdateUser):
     try:
 
         update_user = db.query(User).filter(User.id == user_id).first()
