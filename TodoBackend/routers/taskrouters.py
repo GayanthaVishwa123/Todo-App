@@ -1,20 +1,32 @@
-# from typing import Annotated
+from typing import Annotated, List
 
-# from fastapi import APIRouter, Depends
-# from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-# from ..core.database import get_db
-# from ..schemas.task import CreaetTask
-# from ..schemas.user import CreateRequestUser
+from ..core.database import get_db
+from ..models.todo import Task
+from ..schemas.task import CreatTask
 
-# router = APIRouter(prefix="/tasks", tags=["Tasks"])
+router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-# db_dependency: Annotated[Session, Depends(get_db)]
+db_dependency = Annotated[Session, Depends(get_db)]
 
 
-# @router.get("/")
-# async def list():
-#     return tasks
+@router.get("/", response_model=List[Task], status_code=status.HTTP_200_OK)
+async def list_tasks(db: Session = Depends(get_db)):
+    try:
+        tasks = db.query(Task).all()  # Query all tasks from the database
+        if not tasks:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found"
+            )
+        return tasks
+    except Exception as e:
+        # Catch any general exception and raise HTTP 500 (Internal Server Error)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}",
+        )
 
 
 # def idcreate(new_task_id: int = None):
@@ -25,33 +37,42 @@
 #     return new_task_id
 
 
-# @router.post("/create")
-# async def create_tasks(newTasks: Task):
-#     newTasks.id = idcreate(newTasks.id)
-#     tasks.append(newTasks.dict())
-#     return {"message": "Task created successfully", "task": tasks}
+@router.post("/create", response_model=CreatTask, status_code=status.HTTP_201_CREATED)
+async def create_tasks(db: Session, tasks: CreatTask):
+    try:
+        new_task = Task(**tasks.dict())
+        db.commit()
+        db.refresh(new_task)
+        return new_task
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal Server Error: {str(e)}",
+        )
 
 
-# @router.put("/update/{update_id}")
-# async def update_task(update_id: int, updateDetails: Task):
+@router.put("/update/{update_id}")
+async def update_task(update_id: int, updateDetails: Task):
 
-#     for task in tasks:
-#         if task["id"] == update_id:
+    for task in tasks:
+        if task["id"] == update_id:
 
-#             task["title"] = updateDetails.title
-#             task["task_introduction"] = updateDetails.task_introduction
-#             task["complete_status"] = updateDetails.complete_status
-#             task["start_datetime"] = updateDetails.start_datetime
-#             task["complete_datetime"] = updateDetails.complete_datetime
+            task["title"] = updateDetails.title
+            task["task_introduction"] = updateDetails.task_introduction
+            task["complete_status"] = updateDetails.complete_status
+            task["start_datetime"] = updateDetails.start_datetime
+            task["complete_datetime"] = updateDetails.complete_datetime
 
-#             return {"message": "Task updated successfully", "task": task}
+            return {"message": "Task updated successfully", "task": task}
 
-#     return {"error": "Task not found"}
+    return {"error": "Task not found"}
 
 
-# @router.delete("/delete/{task_id}")
-# async def delete_task(task_id: int):
-#     for i, task in enumerate(tasks):
-#         if task.get("id") == task_id:
-#             tasks.pop(i)
-#             return {"message": "Task deleted successfully", "tasks": tasks}
+@router.delete("/delete/{task_id}")
+async def delete_task(task_id: int):
+    for i, task in enumerate(tasks):
+        if task.get("id") == task_id:
+            tasks.pop(i)
+            return {"message": "Task deleted successfully", "tasks": tasks}
