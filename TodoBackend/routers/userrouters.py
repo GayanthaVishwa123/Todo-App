@@ -88,9 +88,6 @@ async def user_update(db: db_dependency, user_id: int, user: updateUser):
         raise HTTPException(status_code=400, detail=f"Error updating user: {str(e)}")
 
 
-from fastapi import HTTPException
-
-
 # user Delete
 @router.delete("/userdele/{user_id}", status_code=status.HTTP_200_OK)
 async def delete_user(db: db_dependency, user_id: int):
