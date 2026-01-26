@@ -1,4 +1,8 @@
+import bcrypt
 from passlib.context import CryptContext
+
+print(bcrypt.__version__)
+
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
