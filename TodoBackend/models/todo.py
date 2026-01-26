@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 
+from ..auth.passwordAuth import hash_password
 from ..core.database import Base
 
 
@@ -11,7 +12,7 @@ class User(Base):
     lastname = Column(String)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    has_password = Column(String)
+    password = Column(String)
     is_active = Column(Boolean, default=True)
 
 

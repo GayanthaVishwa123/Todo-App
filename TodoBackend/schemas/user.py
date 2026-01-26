@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreateRequestUser(BaseModel):
@@ -6,7 +6,7 @@ class CreateRequestUser(BaseModel):
     lastname: str
     username: str
     email: str
-    has_password: str
+    password: str = Field(..., min_length=6, max_length=72)
 
 
 class UserResponse(BaseModel):

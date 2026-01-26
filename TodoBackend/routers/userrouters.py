@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from sqlalchemy.orm import Session
 
+from ..auth.passwordAuth import hash_password, password_verified
 from ..auth.userAuth import AccessToken, userAuthenticate
 from ..core.database import get_db
 from ..models.todo import User
@@ -41,12 +42,15 @@ async def list_users(db: db_dependency):
 )
 async def createUser(db: db_dependency, user: CreateRequestUser):
     try:
+        hashed_pw = hash_password(user.password)
+        print("Hashed Password:", hashed_pw)
+
         new_user = User(
             firstname=user.firstname,
             lastname=user.lastname,
             username=user.username,
             email=user.email,
-            has_password=user.has_password,
+            has_password=hashed_pw,
         )
 
         db.add(new_user)
@@ -116,7 +120,7 @@ async def login_access_token(
     # Authenticate the user
     user = userAuthenticate(form.username, form.password, db)
     if not isinstance(user, User):
-        raise HTTPException(status_code=400, detail=user["message"])
+        raise HTTPException(status_code=400, detail="Invalid username or password")
 
     # Create access token
     token = create_token(user.username, user.id, timedelta(minutes=20))
