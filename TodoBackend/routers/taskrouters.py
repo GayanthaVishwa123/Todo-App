@@ -13,7 +13,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 from fastapi import HTTPException, status
 
 
-@router.get("/", response_model=List[Task], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=List[TaskResponse], status_code=status.HTTP_200_OK)
 async def list_tasks(db: Session = Depends(get_db)):
     try:
         tasks = db.query(Task).all()  # Query all tasks from the database
