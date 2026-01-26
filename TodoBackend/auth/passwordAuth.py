@@ -12,14 +12,3 @@ def hash_password(password: str):
 # Verify password
 def password_verified(plain_password: str, hashed_password: str):
     return password_context.verify(plain_password, hashed_password)
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
-print("continue karala denna")
-print("continue karala denna")
-=======
-print("Password")
->>>>>>> auth/dev
-=======
->>>>>>> auth/dev
