@@ -10,6 +10,7 @@ from ..schemas.task import CreatTask
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 db_dependency = Annotated[Session, Depends(get_db)]
+from fastapi import HTTPException, status
 
 
 @router.get("/", response_model=List[Task], status_code=status.HTTP_200_OK)
@@ -54,25 +55,67 @@ async def create_tasks(db: Session, tasks: CreatTask):
 
 
 @router.put("/update/{update_id}")
-async def update_task(update_id: int, updateDetails: Task):
+async def update_task(db: db_dependency, update_id: int, updateDetails: CreatTask):
+    try:
+        # Find task
+        task = db.query(Task).filter(Task.id == update_id).first()
 
-    for task in tasks:
-        if task["id"] == update_id:
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+            )
 
-            task["title"] = updateDetails.title
-            task["task_introduction"] = updateDetails.task_introduction
-            task["complete_status"] = updateDetails.complete_status
-            task["start_datetime"] = updateDetails.start_datetime
-            task["complete_datetime"] = updateDetails.complete_datetime
+        # Update fields
+        task.taskname = updateDetails.taskname
+        task.task_introduction = updateDetails.task_introduction
+        task.start_datetime = updateDetails.start_datetime
+        task.complete_datetime = updateDetails.complete_datetime
+        task.complete_status = updateDetails.complete_status
 
-            return {"message": "Task updated successfully", "task": task}
+        db.commit()
+        db.refresh(task)
 
-    return {"error": "Task not found"}
+        return task
+
+    except Exception as e:
+        db.rollback()  # Important if error happens
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Update failed: {str(e)}",
+        )
+
+    # for task in tasks:
+    #     if task["id"] == update_id:
+
+    #         task["title"] = updateDetails.title
+    #         task["task_introduction"] = updateDetails.task_introduction
+    #         task["complete_status"] = updateDetails.complete_status
+    #         task["start_datetime"] = updateDetails.start_datetime
+    #         task["complete_datetime"] = updateDetails.complete_datetime
+
+    #         return {"message": "Task updated successfully", "task": task}
+
+    # return {"error": "Task not found"}
 
 
 @router.delete("/delete/{task_id}")
-async def delete_task(task_id: int):
-    for i, task in enumerate(tasks):
-        if task.get("id") == task_id:
-            tasks.pop(i)
-            return {"message": "Task deleted successfully", "tasks": tasks}
+async def delete_task(db: db_dependency, task_id: int):
+    try:
+        task = db.query(Task).filter(Task.id == task_id).first()
+
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+            )
+
+        db.delete(task)
+        db.commit()
+
+        return {"message": "Task deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Delete failed: {str(e)}",
+        )
