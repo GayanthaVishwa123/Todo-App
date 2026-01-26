@@ -7,7 +7,7 @@ from jose import jwt
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from ..auth.passwordAuth import passwordVeryfied
+from ..auth.passwordAuth import password_verified
 from ..core.database import get_db
 from ..models.todo import User
 
@@ -29,7 +29,7 @@ def userAuthenticate(user_name: str, password: str, db: db_dependency):
     userdetails = db.query(User).filter(User.username == user_name).first()
     if not userdetails:
         return {"error": "User not found"}
-    if not passwordVeryfied(password, userdetails.has_password):
+    if not password_verified(password, userdetails.has_password):
         return {"message": "Invalid password"}
     return userdetails
 
