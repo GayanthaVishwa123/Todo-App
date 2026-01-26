@@ -1,6 +1,9 @@
 from passlib.context import CryptContext
 
+<<<<<<< HEAD
 # Create a CryptContext for password hashing and verification
+=======
+>>>>>>> TodoTst_and_Auth/dev
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
