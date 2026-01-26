@@ -60,9 +60,6 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
         raise HTTPException(status_code=400, detail=f"User creation failed: {str(e)}")
 
 
-from fastapi import HTTPException
-
-
 # user Update
 @router.put(
     "/userUpdate/{user_id}",
@@ -89,9 +86,6 @@ async def user_update(db: db_dependency, user_id: int, user: updateUser):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error updating user: {str(e)}")
-
-
-from fastapi import HTTPException
 
 
 # user Delete
