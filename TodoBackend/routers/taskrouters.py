@@ -98,9 +98,24 @@ async def update_task(db: db_dependency, update_id: int, updateDetails: CreatTas
     # return {"error": "Task not found"}
 
 
-# @router.delete("/delete/{task_id}")
-# async def delete_task(task_id: int):
-#     for i, task in enumerate(tasks):
-#         if task.get("id") == task_id:
-#             tasks.pop(i)
-#             return {"message": "Task deleted successfully", "tasks": tasks}
+@router.delete("/delete/{task_id}")
+async def delete_task(db: db_dependency, task_id: int):
+    try:
+        task = db.query(Task).filter(Task.id == task_id).first()
+
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+            )
+
+        db.delete(task)
+        db.commit()
+
+        return {"message": "Task deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Delete failed: {str(e)}",
+        )
