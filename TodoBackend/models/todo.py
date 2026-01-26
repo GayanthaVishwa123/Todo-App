@@ -22,7 +22,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     taskname = Column(String, index=True)
     task_introduction = Column(String, index=True)
-    complete_status = Column(Boolean, default=False)
     start_datetime = Column(String)
     complete_datetime = Column(String)
+    complete_status = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
