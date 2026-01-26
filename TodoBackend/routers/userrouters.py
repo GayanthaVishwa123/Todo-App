@@ -50,7 +50,7 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
             lastname=user.lastname,
             username=user.username,
             email=user.email,
-            has_password=hashed_pw,
+            password=hashed_pw,
         )
 
         db.add(new_user)
