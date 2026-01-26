@@ -20,12 +20,12 @@ db_dependency = Annotated[Session, Depends(get_db)]
 # OAuth2PasswordBearer instance to extract token from Authorization header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# from TodoBackend.auth.userAuth import (
-#     AccessToken,
-#     create_token,
-#     decode_token,
-#     userAuthenticate,
-# )
+from TodoBackend.auth.userAuth import (
+    AccessToken,
+    create_token,
+    decode_token,
+    userAuthenticate,
+)
 
 
 # GET all users
