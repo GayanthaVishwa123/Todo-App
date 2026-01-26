@@ -1,14 +1,14 @@
 from passlib.context import CryptContext
 
-password_context = CryptContext(schemes=["bcrypt"], Deprecated="auto")
+# Create a CryptContext for password hashing and verification
+password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# hash password
-def hashpassword(passwprd: str):
-    return password_context.hash(passwprd)
+# Hash password
+def hash_password(password: str):
+    return password_context.hash(password)
 
 
-# password veryfied
-def passwordVeryfied(plain_password: str, hashed_password: str):
+# Verify password
+def password_verified(plain_password: str, hashed_password: str):
     return password_context.verify(plain_password, hashed_password)
-print("Password")
