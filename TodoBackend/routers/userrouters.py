@@ -129,11 +129,15 @@ async def login_access_token(
     return AccessToken(access_token=token, token_type="bearer")
 
 
-# Protected route using Bearer token
 @router.get("/protected")
 async def protected_route(token: str = Depends(oauth2_scheme)):
-    # Decode the token to get the user details
+    # Decode the token to get the user details (e.g., username, user id, etc.)
     user_info = decode_token(token)
+
+    if "sub" not in user_info:
+        raise HTTPException(status_code=400, detail="Invalid token format")
+
+    # Return a response indicating that the user is authorized
     return {
-        "message": f"Hello {user_info['username']}, you are authorized to view this resource."
+        "message": f"Hello {user_info['sub']}, you are authorized to view this resource."
     }
