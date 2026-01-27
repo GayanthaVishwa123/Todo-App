@@ -131,7 +131,7 @@ async def login_access_token(
 
 @router.get("/protected")
 async def protected_route(token: str = Depends(oauth2_scheme)):
-    # Decode the token to get the user details (e.g., username, user id, etc.)
+    #  username, user id,other
     user_info = decode_token(token)
 
     if "sub" not in user_info:
