@@ -24,23 +24,29 @@ class AccessToken(BaseModel):
     token_type: str
 
 
-# Authenticate the user
 def userAuthenticate(user_name: str, password: str, db: db_dependency):
+
     userdetails = db.query(User).filter(User.username == user_name).first()
+
+    # Check if the user exists
     if not userdetails:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
+
     if not password_verified(password, userdetails.has_password):
-        return {"message": "Invalid password"}
+        raise HTTPException(status_code=400, detail="Invalid password")
+
+    # Return the user object if authentication is successful
     return userdetails
 
 
-# Create JWT token function
 def create_token(username: str, user_id: int, expire_time: timedelta):
-    encoded_data = {"sub": username, "id": user_id}
-    expire_time = datetime.utcnow() + expire_time
-    encoded_data.update({"exp": expire_time})
 
-    # Correct the spelling of 'encode'
+    encoded_data = {"sub": username, "id": user_id}
+
+    expiration = datetime.utcnow() + expire_time
+    encoded_data.update({"exp": expiration})
+
+    # Create and return the JWT token
     return jwt.encode(encoded_data, SECRET_KEY, algorithm=ALGORITHM)
 
 

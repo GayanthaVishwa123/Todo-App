@@ -112,18 +112,20 @@ async def delete_user(db: db_dependency, user_id: int):
         raise HTTPException(status_code=400, detail=f"Error deleting user: {str(e)}")
 
 
-# Token endpoint for login (OAuth2 Password Flow)
-@router.post("/token", response_model=AccessToken)
+@router.post("/login", response_model=AccessToken)
 async def login_access_token(
     form: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
 ):
     # Authenticate the user
     user = userAuthenticate(form.username, form.password, db)
+    print(user)
+
     if not isinstance(user, User):
         raise HTTPException(status_code=400, detail="Invalid username or password")
 
     # Create access token
     token = create_token(user.username, user.id, timedelta(minutes=20))
+    print(token)
     return AccessToken(access_token=token, token_type="bearer")
 
 
