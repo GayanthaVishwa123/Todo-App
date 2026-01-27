@@ -32,7 +32,7 @@ def userAuthenticate(user_name: str, password: str, db: db_dependency):
     if not userdetails:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if not password_verified(password, userdetails.has_password):
+    if not password_verified(password, userdetails.password):
         raise HTTPException(status_code=400, detail="Invalid password")
 
     # Return the user object if authentication is successful
