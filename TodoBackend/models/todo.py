@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 
 from ..auth.passwordAuth import hash_password
@@ -23,7 +25,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     taskname = Column(String, index=True)
     task_introduction = Column(String, index=True)
-    start_datetime = Column(DateTime, nullable=True)
+    start_datetime = Column(DateTime, nullable=True, default=datetime.utcnow)
     complete_datetime = Column(DateTime, nullable=True)
     complete_status = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))

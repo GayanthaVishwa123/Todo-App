@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -113,24 +113,36 @@ async def delete_task(db: db_dependancy, task_id: int = None):
 
 @router.put("/completeTask/{task_id}")
 async def complete_task(task_id: int, db: db_dependancy):
+    try:
+        # Fetch the task from the database by task_id
+        task = db.query(Task).filter(Task.id == task_id).first()
 
-    task = db.query(Task).filter(Task.id == task_id).first()
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+            )
 
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        # Mark task as completed and set the completion time
+        task.complete_status = True
+        task.complete_datetime = datetime.utcnow()
 
-    # Mark task as completed
-    task.complete_status = True
-    task.complete_datetime = datetime.utcnow()
+        db.commit()
 
-    db.commit()
-    db.refresh(task)
+        db.refresh(task)
 
-    return {
-        "message": "Task completed",
-        "task_id": task.id,
-        "completed_at": task.completed_at,
-    }
+        # Return a success message with task completion details
+        return {
+            "message": "Task completed",
+            "task_id": task.id,
+            "completed_at": task.complete_datetime,
+        }
+
+    except Exception as e:
+        # Catch any error that occurs and raise an internal server error with the message
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}",
+        )
 
 
 @router.delete("/removeCompleteTask/{task_id}")
