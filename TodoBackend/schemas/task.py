@@ -14,7 +14,7 @@ class TaskResponse(BaseModel):
     id: int
     taskname: str
     task_introduction: str
-    complete_status: str
+    complete_status: bool
 
     class Config:
         from_attributes = True

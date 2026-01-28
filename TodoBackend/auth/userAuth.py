@@ -48,3 +48,24 @@ def create_token(username: str, user_id: int, expire_time: timedelta):
 
     # Create and return the JWT token
     return jwt.encode(encoded_data, SECRET_KEY, algorithm=ALGORITHM)
+
+
+# Decode the JWT token and get the current user
+def get_current_user(token: str):
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+
+        if username is None or user_id is None:
+            raise HTTPException(
+                status_code=401, detail="Invalid token: missing user details"
+            )
+
+        return {"username": username, "user_id": user_id}
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")

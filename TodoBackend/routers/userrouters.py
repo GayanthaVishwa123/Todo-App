@@ -12,6 +12,7 @@ from ..auth.userAuth import (
     SECRET_KEY,
     AccessToken,
     create_token,
+    get_current_user,
     userAuthenticate,
 )
 from ..core.database import get_db
@@ -25,10 +26,22 @@ router = APIRouter(prefix="/user", tags=["Users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/token")
 
 
+async def protected_route(token: str = Depends(oauth2_scheme)):
+    # Get user info from the decoded token
+    user_info = get_current_user(token)
+
+    # Return a response indicating that the user is authorized
+    return user_info
+    print(user_info)
+
+
+# current_user: dict = Depends(protected_route)
+# filter((User.id != current_user["user_id"]))
 # GET all users
 @router.get("/", response_model=list[AllusersResponse], status_code=status.HTTP_200_OK)
-async def list_users(db: db_dependency):
-    users = db.query(User).all()
+async def list_users(db: db_dependency, current_user: dict = Depends(protected_route)):
+    # print(current_user)
+    users = db.query(User).filter((User.id != current_user["user_id"])).all()
     return users
 
 
@@ -36,7 +49,10 @@ async def list_users(db: db_dependency):
 @router.post(
     "/createUser", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
-async def createUser(db: db_dependency, user: CreateRequestUser):
+async def createUser(
+    db: db_dependency,
+    user: CreateRequestUser,
+):
     try:
         hashed_pw = hash_password(user.password)
         print("Hashed Password:", hashed_pw)
@@ -53,6 +69,10 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
         db.commit()
         db.refresh(new_user)
 
+        token = create_token(
+            new_user.username,
+            new_user.id,
+        )
         return new_user
 
     except Exception as e:
@@ -66,8 +86,16 @@ async def createUser(db: db_dependency, user: CreateRequestUser):
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def user_update(db: db_dependency, user_id: int, user: UpdateUser):
+async def user_update(
+    db: db_dependency,
+    user_id: int,
+    user: UpdateUser,
+    current_user: dict = Depends(protected_route),
+):
     try:
+        if not (user_id == current_user["user_id"]):
+            raise HTTPException(status_code=404, detail="Could not update")
+
         update_user = db.query(User).filter(User.id == user_id).first()
 
         if not update_user:
@@ -89,8 +117,12 @@ async def user_update(db: db_dependency, user_id: int, user: UpdateUser):
 
 # User Delete
 @router.delete("/userdele/{user_id}", status_code=status.HTTP_200_OK)
-async def delete_user(db: db_dependency, user_id: int):
+async def delete_user(
+    db: db_dependency, user_id: int, current_user: dict = Depends(protected_route)
+):
     try:
+        if not (user_id == current_user["user_id"]):
+            raise HTTPException(status_code=404, detail="Could not Delete")
         user_to_delete = db.query(User).filter(User.id == user_id).first()
 
         if not user_to_delete:
@@ -121,34 +153,25 @@ async def login_access_token(
     return AccessToken(access_token=token, token_type="bearer")
 
 
-# Decode the JWT token and get the current user
-def get_current_user(token: str):
-    try:
-        # Decode the JWT token
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
+# # Decode the JWT token and get the current user
+# def get_current_user(token: str):
+#     try:
+#         # Decode the JWT token
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         username: str = payload.get("sub")
+#         user_id: int = payload.get("id")
 
-        if username is None or user_id is None:
-            raise HTTPException(
-                status_code=401, detail="Invalid token: missing user details"
-            )
+#         if username is None or user_id is None:
+#             raise HTTPException(
+#                 status_code=401, detail="Invalid token: missing user details"
+#             )
 
-        return {"username": username, "user_id": user_id}
+#         return {"username": username, "user_id": user_id}
 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(status_code=401, detail="Token has expired")
+#     except jwt.JWTError:
+#         raise HTTPException(status_code=401, detail="Invalid token")
 
 
 # Protected route to check the user's access
-@router.get("/protected")
-async def protected_route(token: str = Depends(oauth2_scheme)):
-    # Get user info from the decoded token
-    user_info = get_current_user(token)
-
-    # Return a response indicating that the user is authorized
-    return {
-        "message": f"Hello {user_info['username']}, you are authorized to view this resource."
-    }

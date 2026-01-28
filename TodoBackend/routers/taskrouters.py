@@ -1,4 +1,5 @@
-from typing import List
+import datetime
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -9,16 +10,21 @@ from ..schemas.task import CreatTask, TaskResponse
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
+task_array = []
+
+db_dependancy = Annotated[Session, Depends(get_db)]
+
 
 @router.get("/", response_model=List[TaskResponse], status_code=status.HTTP_200_OK)
-async def list_tasks(db: Session = Depends(get_db)):
+async def list_tasks(db: db_dependancy):
     try:
-        tasks = db.query(Task).all()  # Query all tasks
+        tasks = db.query(Task).all()
         if not tasks:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found"
             )
         return tasks
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -29,13 +35,20 @@ async def list_tasks(db: Session = Depends(get_db)):
 @router.post(
     "/create", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_tasks(db: Session = Depends(get_db), task: CreatTask = None):
+async def create_tasks(db: db_dependancy, task: CreatTask = None):
+
     try:
-        new_task = Task(**task.dict())
-        db.add(new_task)  # <-- Add to session
+
+        new_task = Task(**task.model_dump())
+        task_array.append(new_task)
+
+        db.add(new_task)
         db.commit()
         db.refresh(new_task)
+
+        print(task_array)
         return new_task
+
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -46,7 +59,7 @@ async def create_tasks(db: Session = Depends(get_db), task: CreatTask = None):
 
 @router.put("/update/{update_id}", response_model=TaskResponse)
 async def update_task(
-    db: Session = Depends(get_db),
+    db: db_dependancy,
     update_id: int = None,
     updateDetails: CreatTask = None,
 ):
@@ -79,7 +92,7 @@ async def update_task(
 
 
 @router.delete("/delete/{task_id}")
-async def delete_task(db: Session = Depends(get_db), task_id: int = None):
+async def delete_task(db: db_dependancy, task_id: int = None):
     try:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:
@@ -96,3 +109,29 @@ async def delete_task(db: Session = Depends(get_db), task_id: int = None):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Delete failed: {str(e)}",
         )
+
+
+@router.put("/completeTask/{task_id}")
+async def complete_task(task_id: int, db: db_dependancy):
+
+    task = db.query(Task).filter(Task.id == task_id).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Mark task as completed
+    task.complete_status = True
+    task.complete_datetime = datetime.utcnow()
+
+    db.commit()
+    db.refresh(task)
+
+    return {
+        "message": "Task completed",
+        "task_id": task.id,
+        "completed_at": task.completed_at,
+    }
+
+
+@router.delete("/removeComplteTask/{task_id}")
+async def removecomplteTask(task_id:int,db:db_dependancy):

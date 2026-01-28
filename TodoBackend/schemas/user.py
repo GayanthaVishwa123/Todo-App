@@ -15,7 +15,6 @@ class UserResponse(BaseModel):
     lastname: str
     username: str
     email: str
-    token: str
 
     class Config:
         from_attributes = True
