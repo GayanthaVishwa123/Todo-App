@@ -133,5 +133,15 @@ async def complete_task(task_id: int, db: db_dependancy):
     }
 
 
-@router.delete("/removeComplteTask/{task_id}")
-async def removecomplteTask(task_id:int,db:db_dependancy):
+@router.delete("/removeCompleteTask/{task_id}")
+async def remove_complete_task(task_id: int, db: db_dependancy):
+
+    task = db.query(Task).filter(Task.id == task_id).first()
+
+    if not task:
+        return {"message": "Task not found"}
+
+    db.delete(task)
+    db.commit()
+
+    return {"message": "Task deleted successfully"}
