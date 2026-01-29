@@ -30,7 +30,7 @@ async def list_tasks(db: db_dependancy, current_user: dict = Depends(protected_r
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
             )
 
-        tasks = db.query(Task).all()
+        tasks = db.query(Task).filter(Task.user_id == current_user["user_id"]).all()
         if not tasks:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found"
@@ -81,11 +81,21 @@ async def create_tasks(
 @router.put("/update/{update_id}", response_model=TaskResponse)
 async def update_task(
     db: db_dependancy,
-    update_id: int = None,
-    updateDetails: CreatTask = None,
+    update_id: int,
+    updateDetails: CreatTask,
+    current_user: dict = Depends(protected_route),
 ):
     try:
-        task = db.query(Task).filter(Task.id == update_id).first()
+        if not current_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            )
+
+        task = (
+            db.query(Task)
+            .filter(Task.id == update_id and Task.user_id == current_user["user_id"])
+            .first()
+        )
         if not task:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
@@ -94,8 +104,7 @@ async def update_task(
         # Update fields
         task.taskname = updateDetails.taskname
         task.task_introduction = updateDetails.task_introduction
-        task.start_datetime = updateDetails.start_datetime
-        task.complete_datetime = updateDetails.complete_datetime
+        task.start_datetime = datetime.utcnow()
 
         # If you have complete_status in Task model, update it here too
         if hasattr(updateDetails, "complete_status"):
@@ -113,7 +122,11 @@ async def update_task(
 
 
 @router.delete("/delete/{task_id}")
-async def delete_task(db: db_dependancy, task_id: int = None):
+async def delete_task(
+    db: db_dependancy,
+    task_id: int = None,
+    current_user: dict = Depends(protected_route),
+):
     try:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:
@@ -139,7 +152,10 @@ async def delete_all_tasks(
     try:
         deleted_count = (
             db.query(Task)
-            .filter(Task.user_id == current_user["id"])
+            .filter(
+                Task.user_id == current_user["id"]
+                and Task.user_id == current_user["user_id"]
+            )
             .delete(synchronize_session=False)
         )
 
@@ -162,10 +178,16 @@ async def delete_all_tasks(
 
 
 @router.put("/completeTask/{task_id}")
-async def complete_task(task_id: int, db: db_dependancy):
+async def complete_task(
+    task_id: int, db: db_dependancy, current_user: dict = Depends(protected_route)
+):
     try:
         # Fetch the task from the database by task_id
-        task = db.query(Task).filter(Task.id == task_id).first()
+        task = (
+            db.query(Task)
+            .filter(Task.id == task_id and Task.user_id == current_user["user_id"])
+            .first()
+        )
 
         if not task:
             raise HTTPException(
@@ -196,9 +218,15 @@ async def complete_task(task_id: int, db: db_dependancy):
 
 
 @router.delete("/removeCompleteTask/{task_id}")
-async def remove_complete_task(task_id: int, db: db_dependancy):
+async def remove_complete_task(
+    task_id: int, db: db_dependancy, current_user: dict = Depends(protected_route)
+):
 
-    task = db.query(Task).filter(Task.id == task_id).first()
+    task = (
+        db.query(Task)
+        .filter(Task.id == task_id and Task.user_id == current_user["user_id"])
+        .first()
+    )
 
     if not task:
         return {"message": "Task not found"}
