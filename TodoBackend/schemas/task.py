@@ -1,13 +1,12 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreatTask(BaseModel):
     taskname: str
     task_introduction: str
-    start_datetime: str
-    complete_datetime: str
 
 
 class TaskResponse(BaseModel):
@@ -15,7 +14,9 @@ class TaskResponse(BaseModel):
 
     taskname: str
     task_introduction: str
-    complete_status: str
+    start_datetime: datetime
+    complete_status: bool
+    user_id: int
 
     class Config:
         from_attributes = True

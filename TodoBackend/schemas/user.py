@@ -24,3 +24,11 @@ class UpdateUser(BaseModel):
     firstname: str
     lastname: str
     username: str
+
+
+class AllusersResponse(BaseModel):
+    id: int
+    firstname: str
+    lastname: str
+    username: str
+    email: str
