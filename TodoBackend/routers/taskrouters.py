@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..models.todo import Task
+from ..routers.userrouters import protected_route
 from ..schemas.task import CreatTask, TaskResponse
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -14,10 +15,21 @@ task_array = []
 
 db_dependancy = Annotated[Session, Depends(get_db)]
 
+# current_user: dict = Depends(get_current_user)
+#  if not current_user:
+# raise HTTPException(
+# status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+# )
+
 
 @router.get("/", response_model=List[TaskResponse], status_code=status.HTTP_200_OK)
-async def list_tasks(db: db_dependancy):
+async def list_tasks(db: db_dependancy, current_user: dict = Depends(protected_route)):
     try:
+        if not current_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            )
+
         tasks = db.query(Task).all()
         if not tasks:
             raise HTTPException(
@@ -35,11 +47,20 @@ async def list_tasks(db: db_dependancy):
 @router.post(
     "/create", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_tasks(db: db_dependancy, task: CreatTask = None):
+async def create_tasks(
+    db: db_dependancy,
+    task: CreatTask = None,
+    current_user: dict = Depends(protected_route),
+):
 
     try:
+        if not current_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            )
 
         new_task = Task(**task.model_dump())
+        new_task.user_id = current_user["user_id"]
         task_array.append(new_task)
 
         db.add(new_task)
@@ -108,6 +129,35 @@ async def delete_task(db: db_dependancy, task_id: int = None):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Delete failed: {str(e)}",
+        )
+
+
+@router.delete("/deleteAll", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_all_tasks(
+    db: db_dependancy, current_user: dict = Depends(protected_route)
+):
+    try:
+        deleted_count = (
+            db.query(Task)
+            .filter(Task.user_id == current_user["id"])
+            .delete(synchronize_session=False)
+        )
+
+        if deleted_count == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found to delete"
+            )
+
+        db.commit()
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}",
         )
 
 

@@ -23,10 +23,10 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 # OAuth2PasswordBearer instance to extract token from Authorization header
 router = APIRouter(prefix="/user", tags=["Users"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 
-async def protected_route(token: str = Depends(oauth2_scheme)):
+def protected_route(token: str = Depends(oauth2_scheme)):
     # Get user info from the decoded token
     user_info = get_current_user(token)
 
@@ -69,15 +69,25 @@ async def createUser(
         db.commit()
         db.refresh(new_user)
 
-        token = create_token(
-            new_user.username,
-            new_user.id,
-        )
         return new_user
 
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"User creation failed: {str(e)}")
+
+
+# Token endpoint to login and get JWT
+@router.post("/login", response_model=AccessToken)
+async def login_User(
+    form: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
+):
+    # Authenticate the user
+    user = userAuthenticate(form.username, form.password, db)
+    if not isinstance(user, User):
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+    token = create_token(user.username, user.id, timedelta(minutes=10))
+
+    return AccessToken(access_token=token, token_type="bearer")
 
 
 # User Update
@@ -136,21 +146,6 @@ async def delete_user(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error deleting user: {str(e)}")
-
-
-# Token endpoint to login and get JWT
-@router.post("/token", response_model=AccessToken)
-async def login_access_token(
-    form: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
-):
-    # Authenticate the user
-    user = userAuthenticate(form.username, form.password, db)
-    if not isinstance(user, User):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-
-    # Create access token
-    token = create_token(user.username, user.id, timedelta(minutes=20))
-    return AccessToken(access_token=token, token_type="bearer")
 
 
 # # Decode the JWT token and get the current user
