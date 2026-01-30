@@ -8,8 +8,6 @@ from sqlalchemy.orm import Session
 
 from ..auth.passwordAuth import hash_password
 from ..auth.userAuth import (
-    ALGORITHM,
-    SECRET_KEY,
     AccessToken,
     create_token,
     get_current_user,
@@ -87,7 +85,9 @@ async def login_User(
         raise HTTPException(status_code=400, detail="Invalid username or password")
     token = create_token(user.username, user.id, timedelta(minutes=10))
 
-    return AccessToken(access_token=token, token_type="bearer")
+    access_token = AccessToken(access_token=token, token_type="bearer")
+    print(access_token)
+    return access_token
 
 
 # User Update
