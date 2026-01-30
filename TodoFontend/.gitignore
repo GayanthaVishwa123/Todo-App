@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .env*
+<<<<<<< HEAD
 .env
 __pycache__/
 *.pyc
@@ -73,3 +74,5 @@ yarn-debug.log*
 
 # OS
 .DS_Store
+=======
+>>>>>>> dev
