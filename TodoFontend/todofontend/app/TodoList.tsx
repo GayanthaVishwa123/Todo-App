@@ -115,16 +115,25 @@ const TodoApp = () => {
     }
   };
 
-  // remove Complete
-  const removeUncomplete = async (id: number) => {
+  // mark undo Complete
+  const undoComplte = async (id: number) => {
     try {
-      await axios.delete(`${API_URL}/tasks/Undocomplete/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTodos(todos.filter((t) => t.id !== id));
+      const response = await axios.put(
+        `${API_URL}/tasks/complete/${id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      // Update task status in the UI
+      setTodos(
+        todos.map((t) =>
+          t.id === id ? { ...t, completed: false, status: 'Active' } : t
+        )
+      );
     } catch (err) {
-      console.error('Error deleting task:', err);
-      setError('Failed to delete task.');
+      console.error('Error marking task as completed:', err);
+      setError('Failed to complete task.');
     }
   };
 
@@ -238,7 +247,7 @@ const TodoApp = () => {
               <th className="py-3 px-6">Deadline</th>
               <th className="py-3 px-6">Priority</th>
               <th className="py-3 px-6">Status</th>
-              <th className="py-3 px-6 text-right">Actions</th>
+              <th className="py-3 px-6 text-right">Undo Complete</th>
             </tr>
           </thead>
           <tbody>
@@ -263,7 +272,7 @@ const TodoApp = () => {
                   </td>
                   <td className="py-3 px-6 text-right space-x-4">
                     <button
-                      onClick={() => removeUncomplete(task.id)}
+                      onClick={() => undoComplte(task.id)}
                       className="text-red-600 hover:underline transition-all"
                     >
                       Undo
