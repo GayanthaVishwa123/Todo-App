@@ -34,25 +34,18 @@ class CreateTask(BaseModel):
 # Pydantic model for responding with task details (response body)
 class TaskResponse(BaseModel):
     id: int
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     taskname: str
     task_introduction: str
     start_datetime: datetime
     complete_status: bool
-=======
-=======
->>>>>>> dev
+
     title: str
     deadline: Optional[date]
     priority: Priority
     comments: Optional[str]
     status: Optional[TaskStatus] = TaskStatus.Active
-<<<<<<< HEAD
->>>>>>> dev
-=======
->>>>>>> dev
+
     user_id: int
 
     class Config:
