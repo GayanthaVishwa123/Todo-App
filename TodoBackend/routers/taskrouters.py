@@ -51,6 +51,7 @@ async def create_task(
             )
 
         new_task = Task(**task.dict())
+        new_task.user_id = current_user["user_id"]
 
         db.add(new_task)
         db.commit()
