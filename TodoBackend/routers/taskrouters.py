@@ -14,15 +14,19 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 db_dependancy = Annotated[Session, Depends(get_db)]
 
 
+# current_user: dict = Depends(protected_route)
+# Task.user_id == current_user["user_id"]
 @router.get("/", response_model=List[TaskResponse], status_code=status.HTTP_200_OK)
-async def list_tasks(db: db_dependancy, current_user: dict = Depends(protected_route)):
+async def list_tasks(
+    db: db_dependancy,
+):
     try:
-        if not current_user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
-            )
+        # if not current_user:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        #     )
 
-        tasks = db.query(Task).filter(Task.user_id == current_user["user_id"]).all()
+        tasks = db.query(Task).all()
         if not tasks:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found"
