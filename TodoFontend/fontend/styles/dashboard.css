@@ -1,0 +1,48 @@
+/* Dashboard Page Styles */
+.dashboard-container {
+  @apply p-6 max-w-4xl mx-auto;
+}
+
+.dashboard-header {
+  @apply flex justify-between mb-6;
+}
+
+.dashboard-title {
+  @apply text-3xl font-semibold;
+}
+
+.new-task-btn {
+  @apply px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700;
+}
+
+.task-table-container {
+  @apply space-y-4;
+}
+
+.task-form-container {
+  @apply fixed inset-0 bg-black/40 flex justify-end;
+}
+
+.task-form {
+  @apply w-[420px] bg-white h-full p-6 shadow-xl;
+}
+
+.task-form-heading {
+  @apply text-2xl font-semibold mb-4;
+}
+
+.task-form-inputs {
+  @apply space-y-4;
+}
+
+.task-form-buttons {
+  @apply flex justify-end gap-3 mt-6;
+}
+
+.close-btn {
+  @apply px-4 py-2 border rounded hover:bg-gray-100;
+}
+
+.save-btn {
+  @apply px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700;
+}

@@ -1,0 +1,53 @@
+/* Task Table Styling */
+.table-container {
+  @apply space-y-4;
+}
+
+.table {
+  @apply w-full border-collapse mb-8;
+}
+
+.table-header {
+  @apply bg-gray-100 text-left;
+}
+
+.table-header th {
+  @apply p-3;
+}
+
+.table-row {
+  @apply border-b;
+}
+
+.table-row-hover {
+  @apply hover:bg-gray-100;
+}
+
+.completed-task {
+  @apply bg-gray-50 text-gray-400 line-through;
+}
+
+.task-actions {
+  @apply text-right;
+}
+
+.task-btn {
+  @apply px-4 py-2 text-white rounded hover:bg-opacity-80;
+}
+
+/* Specific Button Styles */
+.complete-btn {
+  @apply bg-green-600 hover:bg-green-700;
+}
+
+.undo-btn {
+  @apply bg-indigo-600 hover:bg-indigo-700;
+}
+
+.edit-btn {
+  @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.delete-btn {
+  @apply bg-red-600 hover:bg-red-700;
+}
