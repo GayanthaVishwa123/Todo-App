@@ -14,6 +14,8 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 db_dependancy = Annotated[Session, Depends(get_db)]
 
 
+# current_user: dict = Depends(protected_route)
+# Task.user_id == current_user["user_id"]
 @router.get("/", response_model=List[TaskResponse], status_code=status.HTTP_200_OK)
 async def list_tasks(db: db_dependancy, current_user: dict = Depends(protected_route)):
     try:
@@ -40,8 +42,8 @@ async def list_tasks(db: db_dependancy, current_user: dict = Depends(protected_r
     "/create", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_task(
+    task: CreateTask,
     db: db_dependancy,
-    task: CreateTask = None,
     current_user: dict = Depends(protected_route),
 ):
     try:
@@ -50,13 +52,14 @@ async def create_task(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
             )
 
+        # Create a new Task object using the task data
         new_task = Task(**task.dict())
         new_task.user_id = current_user["user_id"]
 
+        # Add the new task to the database session
         db.add(new_task)
         db.commit()
         db.refresh(new_task)
-
         return new_task
 
     except Exception as e:

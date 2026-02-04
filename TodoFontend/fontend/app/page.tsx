@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import TodoApp from './TodoList';  // Assuming TodoList is your TodoApp
-import RegistrationForm from './ RegistrationForm';
-import LoginForm from './LoginForm';
+import Dashboard from './dashboard/page'; 
+import RegistrationForm from './auth/registerPage';
+import LoginForm from './auth/loginPage';
 
 export default function Home() {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
 
   // Handle closing the registration form
   const handleRegistrationClose = () => {
@@ -23,14 +23,14 @@ export default function Home() {
   // Handle successful login (set loggedIn state to true)
   const handleLogin = (token: string) => {
     console.log('Logged in with token:', token);
-    setIsLoggedIn(true);  // User is logged in, show TodoApp
-    setIsLoginOpen(false); // Close login form
+    setIsLoggedIn(true);  
+    setIsLoginOpen(false); 
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-200">
       {/* Show TodoApp only when logged in */}
-      {isLoggedIn && <TodoApp />}
+      {isLoggedIn && <Dashboard />}
 
       {/* Registration Form */}
       {isRegistrationOpen && <RegistrationForm onClose={handleRegistrationClose} />}
@@ -59,5 +59,4 @@ export default function Home() {
     </div>
   );
 }
-
 
