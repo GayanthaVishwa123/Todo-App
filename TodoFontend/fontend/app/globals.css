@@ -5,6 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Define custom properties (CSS variables) */
 :root {
   --background: #b6b832;
