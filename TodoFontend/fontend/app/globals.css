@@ -1,5 +1,5 @@
 /* Import Tailwind's CSS components */
-@import 'tailwind.css';
+@reference "tailwindcss";
 
 @tailwind base;
 @tailwind components;

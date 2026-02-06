@@ -1,5 +1,6 @@
 
 /* Task Table Styling */
+@reference "tailwindcss"
 .table-container {
   @apply space-y-4;
 }

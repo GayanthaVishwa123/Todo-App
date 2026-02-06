@@ -1,4 +1,6 @@
 /* Task Form Styling */
+@reference "tailwindcss"
+
 .task-form-container {
   @apply fixed inset-0 bg-black/40 flex justify-end;
 }
