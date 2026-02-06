@@ -2,6 +2,7 @@
 
 import { Priority } from '@/types/task';
 
+
 const styles: Record<Priority, string> = {
   High: 'bg-red-100 text-red-700 ring-red-300',
   Medium: 'bg-yellow-100 text-yellow-700 ring-yellow-300',
