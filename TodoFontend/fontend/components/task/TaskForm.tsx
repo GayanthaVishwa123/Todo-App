@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Task, Priority } from '@/types/task';
+import '@/styles/form.css'
 
 type Props = {
   task: Task;

@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 import TaskTable from '@/components/task/TaskTable';
 import TaskForm from '@/components/task/TaskForm';
 import { Task } from '@/types/task';
-
+import '@/styles/dashboard.css'
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);

@@ -2,6 +2,7 @@
 
 import { Task } from '@/types/task';
 import PriorityBadge from './PriorityBadge';
+import '@/styles/tasktable&row.css'
 
 type Props = {
   task: Task;

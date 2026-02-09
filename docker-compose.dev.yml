@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  backend:
+    build: 
+      context: ./TodoBackend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"  
+    volumes:
+      - ./TodoBackend:/app/TodoBackend 
+      - ./todo.db:/app/todo.db  
+
+    environment:
+      - ENV=development
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./TodoFontend/fontend  
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"  
+    volumes:
+      - ./TodoFontend/fontend:/app/fontend  
+    environment:
+      - ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:8000  
+    restart: unless-stopped
+

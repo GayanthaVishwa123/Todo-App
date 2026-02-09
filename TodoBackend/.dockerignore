@@ -1,0 +1,36 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__
+
+# Virtual environments
+venv/
+env/
+*.env
+
+# Docker files
+Dockerfile*
+.dockerignore
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Cache files
+__pycache__/
+*.pkl
+*.db
+
+# Temporary files
+*.bak
+*.swp
+*.tmp
+
+# Tests
+tests/
+*.test.py
