@@ -16,15 +16,16 @@ services:
 
   frontend:
     build: 
-      context: ./TodoFontend/fontend  
+      context: ./TodoFontend/fontend 
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"  
     volumes:
-      - ./TodoFontend/fontend:/app
-      - /app/node_modules
+      - ./TodoFontend/fontend:/app/fontend
     environment:
       - ENV=development
+      - ENV NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://backend:8000  
+      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped
 
