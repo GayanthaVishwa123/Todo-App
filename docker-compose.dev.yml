@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   backend:
@@ -22,7 +21,7 @@ services:
     ports:
       - "3000:3000"  
     volumes:
-      - ./TodoFontend/fontend:/app/TodoFontend/fontend 
+      - ./TodoFontend/fontend:/app
       - /app/node_modules
     environment:
       - ENV=development
