@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"  
     volumes:
-      - ./TodoBackend:/app/TodoBackend 
+      - ./TodoBackend:/app/TodoBackend
       - ./todo.db:/app/todo.db  
 
     environment:
@@ -22,7 +22,8 @@ services:
     ports:
       - "3000:3000"  
     volumes:
-      - ./TodoFontend/fontend:/app/fontend  
+      - ./TodoFontend/fontend:/app/TodoFontend/fontend 
+      - /app/node_modules
     environment:
       - ENV=development
       - NEXT_PUBLIC_API_URL=http://backend:8000  

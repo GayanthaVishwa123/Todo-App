@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import Dashboard from '@/dashboard/Dashboard'; 
 import RegistrationForm from './auth/registerPage';
